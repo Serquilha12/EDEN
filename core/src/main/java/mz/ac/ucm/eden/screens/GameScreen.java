@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import mz.ac.ucm.eden.entities.Player;
 import mz.ac.ucm.eden.entities.SuperPlataform;
 
@@ -13,43 +14,55 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private Player player;
-    private SuperPlataform platform;
+    private Array<SuperPlataform> platforms;
 
     @Override
     public void show() {
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480); // Resolução virtual de teste
+        camera.setToOrtho(false, 800, 480);
 
-        // Instancia o jogador e uma plataforma de teste
         player = new Player(new Vector2(100, 200));
-        platform = new SuperPlataform(50, 100, 300, 20);
+        platforms = new Array<>();
+
+        // Montagem do nível de teste (Chão contínuo + plataformas suspensas)
+        platforms.add(new SuperPlataform(0, 50, 1200, 30));      // Chão principal
+        platforms.add(new SuperPlataform(300, 150, 200, 20));    // Plataforma 1
+        platforms.add(new SuperPlataform(600, 230, 180, 20));    // Plataforma 2
+        platforms.add(new SuperPlataform(850, 180, 250, 20));    // Plataforma 3
     }
 
     @Override
     public void render(float delta) {
-        // Atualiza a lógica do jogo
+        // Lógica de Atualização
         player.update(delta);
         checkCollisions();
 
-        // Limpa a tela
+        // Câmera segue o jogador no eixo X (com limite mínimo na origem)
+        camera.position.x = Math.max(player.getPosition().x + 100, 400);
+        camera.update();
+
+        // Limpeza de Tela
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.15f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Renderiza os objetos
-        camera.update();
+        // Renderização
         batch.setProjectionMatrix(camera.combined);
-
         batch.begin();
-        platform.render(batch);
+
+        for (SuperPlataform platform : platforms) {
+            platform.render(batch);
+        }
         player.render(batch);
+
         batch.end();
     }
 
     private void checkCollisions() {
-        // Colisão básica entre o jogador e a plataforma
-        if (player.getBounds().overlaps(platform.getBounds())) {
-            player.onGroundCollision(platform.getBounds().y + platform.getBounds().height);
+        for (SuperPlataform platform : platforms) {
+            if (player.getBounds().overlaps(platform.getBounds())) {
+                player.handlePlatformCollision(platform.getBounds());
+            }
         }
     }
 
@@ -69,6 +82,8 @@ public class GameScreen implements Screen {
     public void dispose() {
         batch.dispose();
         player.dispose();
-        platform.dispose();
+        for (SuperPlataform platform : platforms) {
+            platform.dispose();
+        }
     }
 }

@@ -21,24 +21,18 @@ public class Player {
     public Player(Vector2 startPosition) {
         this.position = startPosition;
         this.velocity = new Vector2(0, 0);
-
-        // Textura temporária (pode substituir pelo sprite do Rony depois)
         this.texture = new Texture(Gdx.files.internal("libgdx.png"));
         this.bounds = new Rectangle(position.x, position.y, 32, 48);
     }
 
     public void update(float delta) {
-        // Entrada de teclado para testes no Desktop
         handleInput();
 
-        // Aplicar Gravidade
         velocity.y += GRAVITY * delta;
 
-        // Atualizar Posição
         position.x += velocity.x * delta;
         position.y += velocity.y * delta;
 
-        // Atualizar Hitbox de Colisão
         bounds.setPosition(position.x, position.y);
     }
 
@@ -56,14 +50,27 @@ public class Player {
         }
     }
 
-    public void onGroundCollision(float groundY) {
-        position.y = groundY;
-        velocity.y = 0;
-        isGrounded = true;
+    public void handlePlatformCollision(Rectangle platform) {
+        // Colisão por cima (Piso)
+        if (velocity.y < 0 && position.y + 10 >= platform.y + platform.height) {
+            position.y = platform.y + platform.height;
+            velocity.y = 0;
+            isGrounded = true;
+        }
+        // Colisão por baixo (Teto)
+        else if (velocity.y > 0 && position.y + bounds.height - 10 <= platform.y) {
+            position.y = platform.y - bounds.height;
+            velocity.y = 0;
+        }
+        bounds.setPosition(position.x, position.y);
     }
 
     public void render(SpriteBatch batch) {
         batch.draw(texture, position.x, position.y, bounds.width, bounds.height);
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 
     public Rectangle getBounds() {
