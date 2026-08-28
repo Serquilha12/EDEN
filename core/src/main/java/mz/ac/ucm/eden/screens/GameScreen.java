@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+
+import mz.ac.ucm.eden.controls.VirtualController;
 import mz.ac.ucm.eden.entities.Player;
 import mz.ac.ucm.eden.entities.SuperPlataform;
 
@@ -15,6 +17,7 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Player player;
     private Array<SuperPlataform> platforms;
+    private VirtualController controller;
 
     @Override
     public void show() {
@@ -24,6 +27,7 @@ public class GameScreen implements Screen {
 
         player = new Player(new Vector2(100, 200));
         platforms = new Array<>();
+        controller = new VirtualController();
 
         // Montagem do nível de teste (Chão contínuo + plataformas suspensas)
         platforms.add(new SuperPlataform(0, 50, 1200, 30));      // Chão principal
@@ -35,7 +39,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         // Lógica de Atualização
-        player.update(delta);
+        player.update(delta, controller);
         checkCollisions();
 
         // Câmera segue o jogador no eixo X (com limite mínimo na origem)
@@ -54,8 +58,10 @@ public class GameScreen implements Screen {
             platform.render(batch);
         }
         player.render(batch);
-
         batch.end();
+
+// Desenha os botões virtuais por cima da cena
+        controller.draw();
     }
 
     private void checkCollisions() {
@@ -67,7 +73,9 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        controller.resize(width, height);
+    }
 
     @Override
     public void pause() {}
@@ -82,6 +90,7 @@ public class GameScreen implements Screen {
     public void dispose() {
         batch.dispose();
         player.dispose();
+        controller.dispose();
         for (SuperPlataform platform : platforms) {
             platform.dispose();
         }

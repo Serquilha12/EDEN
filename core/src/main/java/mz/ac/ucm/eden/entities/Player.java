@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import mz.ac.ucm.eden.controls.VirtualController;
+
 public class Player {
     private Vector2 position;
     private Vector2 velocity;
@@ -25,26 +27,32 @@ public class Player {
         this.bounds = new Rectangle(position.x, position.y, 32, 48);
     }
 
-    public void update(float delta) {
-        handleInput();
+    public void update(float delta, VirtualController controller) {
+        handleInput(controller);
 
         velocity.y += GRAVITY * delta;
-
         position.x += velocity.x * delta;
         position.y += velocity.y * delta;
 
         bounds.setPosition(position.x, position.y);
     }
 
-    private void handleInput() {
+    public void handleInput(VirtualController controller) {
         velocity.x = 0;
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+
+        // Movimento Esquerda (Teclado ou Touch)
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A) || controller.isLeftPressed()) {
             velocity.x = -MOVE_SPEED;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+
+        // Movimento Direita (Teclado ou Touch)
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D) || controller.isRightPressed()) {
             velocity.x = MOVE_SPEED;
         }
-        if ((Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isKeyJustPressed(Input.Keys.W)) && isGrounded) {
+
+        // Pulo (Teclado ou Touch)
+        boolean jumpRequested = Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isKeyJustPressed(Input.Keys.W) || controller.isJumpPressed();
+        if (jumpRequested && isGrounded) {
             velocity.y = JUMP_VELOCITY;
             isGrounded = false;
         }
