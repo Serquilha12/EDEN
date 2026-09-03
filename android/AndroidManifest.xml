@@ -13,7 +13,7 @@
       tools:ignore="UnusedAttribute"
       android:theme="@style/GdxTheme">
     <activity
-        android:name="com.Calton.EDEN.android.AndroidLauncher"
+        android:name="mz.ac.ucm.eden.android.AndroidLauncher"
         android:label="@string/app_name"
         android:screenOrientation="landscape"
         android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
