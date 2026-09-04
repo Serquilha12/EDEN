@@ -21,6 +21,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class MenuScreen implements Screen {
     private Stage stage;
     private Game game;
+    private Texture btnUpTexture;
+    private Texture btnDownTexture;
+    private BitmapFont font;
 
     public MenuScreen(Game game) {
         this.game = game;
@@ -35,7 +38,7 @@ public class MenuScreen implements Screen {
         table.setFillParent(true);
 
         // Estilo básico para o título
-        BitmapFont font = new BitmapFont();
+        font = new BitmapFont();
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
         Label titleLabel = new Label("EDEN", labelStyle);
         titleLabel.setFontScale(3f);
@@ -53,7 +56,7 @@ public class MenuScreen implements Screen {
         btnPlay.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameScreen());
+                game.setScreen(new GameScreen(game));
             }
         });
 
@@ -70,6 +73,11 @@ public class MenuScreen implements Screen {
         pixmap.fill();
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
+        if (btnUpTexture == null) {
+            btnUpTexture = texture;
+        } else {
+            btnDownTexture = texture;
+        }
         return new TextureRegionDrawable(new TextureRegion(texture));
     }
 
@@ -99,5 +107,8 @@ public class MenuScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        if (font != null) font.dispose();
+        if (btnUpTexture != null) btnUpTexture.dispose();
+        if (btnDownTexture != null) btnDownTexture.dispose();
     }
 }

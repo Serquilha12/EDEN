@@ -1,6 +1,5 @@
 package mz.ac.ucm.eden.controls;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -26,8 +25,8 @@ public class VirtualController {
         viewport = new FitViewport(800, 480);
         stage = new Stage(viewport);
 
-        // Habilita o Stage para receber toques na tela
-        Gdx.input.setInputProcessor(stage);
+        // O InputProcessor é registado externamente (no GameScreen.show())
+        // para evitar conflito com o InputProcessor do MenuScreen
 
         Table table = new Table();
         table.left().bottom(); // Posiciona os controles na parte inferior
@@ -114,6 +113,9 @@ public class VirtualController {
     public boolean isLeftPressed() { return leftPressed; }
     public boolean isRightPressed() { return rightPressed; }
     public boolean isJumpPressed() { return jumpPressed; }
+
+    /** Expõe o Stage para que o GameScreen possa registar o InputProcessor no momento correto. */
+    public Stage getStage() { return stage; }
 
     public void dispose() {
         stage.dispose();

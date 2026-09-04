@@ -1,3 +1,6 @@
+## Repositório aninhado — ignorar o subdiretório EDEN/ (clone duplicado):
+EDEN/
+
 ## Gradle:
 .gradle/
 gradle-app.setting
