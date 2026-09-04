@@ -21,6 +21,8 @@ public class Player {
     private Vector2 velocity;
     private Rectangle bounds;
 
+    public static final float GROUND_Y = 60f; // Nível alinhado ao piso da imagem Morioh.png
+
     private static final float GRAVITY = -1500f;
     private static final float JUMP_VELOCITY = 600f;
     private static final float MOVE_SPEED = 250f;
@@ -86,20 +88,24 @@ public class Player {
         position.x += velocity.x * delta;
         position.y += velocity.y * delta;
 
-        bounds.setPosition(position.x, position.y);
-
-        // Atualiza estado do jogador
-        if (!isGrounded) {
-            if (velocity.y > 50) {
-                currentState = State.JUMPING;
-            } else {
-                currentState = State.FALLING;
-            }
-        } else if (Math.abs(velocity.x) > 10) {
-            currentState = State.RUNNING;
+        // Limite inferior absoluto: o chão da imagem Morioh
+        // O personagem nunca cai abaixo do chão e nunca desaparece da tela
+        if (position.y <= GROUND_Y) {
+            position.y = GROUND_Y;
+            velocity.y = 0;
+            isGrounded = true;
         } else {
-            currentState = State.IDLE;
+            // No ar (caindo de plataforma suspensa ou no ápice do pulo)
+            isGrounded = false;
         }
+
+        // Limite à esquerda para não sair do início da fase
+        if (position.x < 0) {
+            position.x = 0;
+        }
+
+        bounds.setPosition(position.x, position.y);
+        updateState();
     }
 
     public void handleInput(VirtualController controller) {
@@ -126,11 +132,12 @@ public class Player {
     }
 
     public void handlePlatformCollision(Rectangle platform) {
-        // Colisão por cima (Piso)
+        // Colisão por cima (Piso de plataforma suspensa)
         if (velocity.y <= 0 && position.y + 12 >= platform.y + platform.height) {
             position.y = platform.y + platform.height;
             velocity.y = 0;
             isGrounded = true;
+            updateState();
         }
         // Colisão por baixo (Teto)
         else if (velocity.y > 0 && position.y + bounds.height - 12 <= platform.y) {
@@ -138,6 +145,20 @@ public class Player {
             velocity.y = 0;
         }
         bounds.setPosition(position.x, position.y);
+    }
+
+    public void updateState() {
+        if (!isGrounded) {
+            if (velocity.y > 50) {
+                currentState = State.JUMPING;
+            } else {
+                currentState = State.FALLING;
+            }
+        } else if (Math.abs(velocity.x) > 10) {
+            currentState = State.RUNNING;
+        } else {
+            currentState = State.IDLE;
+        }
     }
 
     public void render(SpriteBatch batch) {
